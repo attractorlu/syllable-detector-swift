@@ -1,3 +1,6 @@
 SyllableDetector.xcodeproj/xcuserdata
 SyllableDetector.xcodeproj/project.xcworkspace/xcuserdata
 Examples
+Build
+DerivedData
+.DS_Store
