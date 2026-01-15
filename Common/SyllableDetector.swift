@@ -30,6 +30,9 @@ class SyllableDetector: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate
         }
     }
     
+    // Optional file handle to write spectrogram data (e.g. for debugging/training)
+    var spectrogramFileHandle: FileHandle?
+    
     private let shortTimeFourierTransform: CircularShortTimeFourierTransform
     private let freqIndices: (Int, Int) // default: (26, 90)
     private var buffer: TPCircularBuffer
@@ -74,6 +77,7 @@ class SyllableDetector: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate
     }
     
     deinit {
+        spectrogramFileHandle?.closeFile()
         // release the circular buffer
         TPCircularBufferCleanup(&buffer)
     }
@@ -181,14 +185,20 @@ class SyllableDetector: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate
         /// view as a column vector
         
         let scaledSamples: UnsafeMutablePointer<Float>
+        var allocatedSamples: UnsafeMutablePointer<Float>? = nil
+        defer {
+            if let p = allocatedSamples {
+                p.deinitialize(count: lengthTotal)
+                p.deallocate()
+            }
+        }
+        
         switch config.spectrogramScaling {
         case .db:
             // temporary memory
-            scaledSamples = UnsafeMutablePointer<Float>.allocate(capacity: lengthTotal)
-            defer {
-                scaledSamples.deinitialize(count: lengthTotal)
-                scaledSamples.deallocate()
-            }
+            let p = UnsafeMutablePointer<Float>.allocate(capacity: lengthTotal)
+            allocatedSamples = p
+            scaledSamples = p
             
             // convert to db with amplitude flag
             var one: Float = 1.0
@@ -196,11 +206,9 @@ class SyllableDetector: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate
             
         case .log:
             // temporary memory
-            scaledSamples = UnsafeMutablePointer<Float>.allocate(capacity: lengthTotal)
-            defer {
-                scaledSamples.deinitialize(count: lengthTotal)
-                scaledSamples.deallocate()
-            }
+            let p = UnsafeMutablePointer<Float>.allocate(capacity: lengthTotal)
+            allocatedSamples = p
+            scaledSamples = p
             
             // natural log
             var c = Int32(lengthTotal)
@@ -209,6 +217,12 @@ class SyllableDetector: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate
         case .linear:
             // no copy needed
             scaledSamples = samples
+        }
+        
+        // save spectrogram if handle is configured
+        if let handle = spectrogramFileHandle {
+            let data = Data(bytes: scaledSamples, count: lengthTotal * MemoryLayout<Float>.stride)
+            handle.write(data)
         }
         
         lastOutputs = config.net.apply(scaledSamples)

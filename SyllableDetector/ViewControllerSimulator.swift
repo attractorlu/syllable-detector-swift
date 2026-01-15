@@ -169,7 +169,16 @@ class ViewControllerSimulator: NSViewController {
             return
         }
         
+        // Log parameters to console for spectrogram analysis
+        print("Config Parameters: time_steps=\(config.timeRange), num_freqs=\(config.net.inputs / config.timeRange)")
+        
         let sd = SyllableDetector(config: config)
+        
+        // save spectrogram alongside output
+        let urlSpectrogram = urlOutput.deletingPathExtension().appendingPathExtension("spectrogram.bin")
+        if FileManager.default.createFile(atPath: urlSpectrogram.path, contents: nil, attributes: nil) {
+            sd.spectrogramFileHandle = FileHandle(forWritingAtPath: urlSpectrogram.path)
+        }
         
         // 3. CONFIGURE READER
         // track reader

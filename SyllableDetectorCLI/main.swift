@@ -21,6 +21,7 @@ let cli = Moderator(description: "")
 let argNetworkPath = cli.add(Argument<String?>.optionWithValue("n", "net", description: "Path to trained network file.").required())
 let argAudioPaths = cli.add(Argument<String?>.optionWithValue("a", "audio", description: "Path to the audio file to process.").repeat())
 let argDebounceTime = cli.add(Argument<String?>.optionWithValue("d", "debounce", description: "Number of seconds to debounce triggers."))
+let argSpectrogramPath = cli.add(Argument<String?>.optionWithValue("s", "spectrogram", description: "Path prefix to save spectrogram output."))
 
 do {
     try cli.parse()
@@ -58,6 +59,11 @@ catch {
     fatalError()
 }
 
+// Print parameters to help with spectrogram analysis
+print("Config Parameters:")
+print("  time_steps (timeRange): \(config.timeRange)")
+print("  num_freqs: \(config.net.inputs / config.timeRange)")
+
 // 2. read in the audio
 
 audioPaths.forEach {
@@ -85,7 +91,19 @@ audioPaths.forEach {
     // make detectors
     let potentialTrackDetectors = tracksAudio.enumerated().map {
         (i, track) in
-        return TrackDetector(track: track, config: config, channel: i)
+        let td = TrackDetector(track: track, config: config, channel: i)
+        
+        // configure spectrogram saving if requested
+        if let pathPrefix = argSpectrogramPath.value {
+            let fileName = URL(fileURLWithPath: audioPath).lastPathComponent
+            let path = "\(pathPrefix)_\(fileName)_ch\(i).bin"
+            if FileManager.default.createFile(atPath: path, contents: nil, attributes: nil) {
+                td.detector.spectrogramFileHandle = FileHandle(forWritingAtPath: path)
+            } else {
+                stderr.writeLine("Unable to create spectrogram file: \(path)")
+            }
+        }
+        return td
     }
     
     // validate
@@ -129,4 +147,3 @@ audioPaths.forEach {
         }
     }
 }
-
