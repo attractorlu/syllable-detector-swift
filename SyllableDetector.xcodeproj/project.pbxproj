@@ -145,6 +145,7 @@
 		D8E2DB721D00CBE200FC6AE2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		D8E2DB7F1D00D66F00FC6AE2 /* OutputStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutputStream.swift; sourceTree = "<group>"; };
 		D8E2DB811D00D68D00FC6AE2 /* TrackDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackDetector.swift; sourceTree = "<group>"; };
+		F4D52C9B2F1AFCE50012E571 /* SyllableDetector.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SyllableDetector.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,6 +206,7 @@
 		D8625C7B1BE14922000922D8 /* SyllableDetector */ = {
 			isa = PBXGroup;
 			children = (
+				F4D52C9B2F1AFCE50012E571 /* SyllableDetector.entitlements */,
 				D8625C7C1BE14922000922D8 /* AppDelegate.swift */,
 				D8A9C0EC1D4A549000CE3F2C /* ArduinoIO.swift */,
 				D8625C8C1BE149FE000922D8 /* AudioInterface.swift */,
@@ -591,7 +593,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SyllableDetector/SyllableDetector.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -600,7 +604,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_SWIFT_FLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.gardner.SyllableDetector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -613,7 +618,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SyllableDetector/SyllableDetector.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -622,7 +629,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.gardner.SyllableDetector;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -637,7 +645,7 @@
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEAD_CODE_STRIPPING = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Common/Common-Bridging-Header.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
@@ -650,7 +658,7 @@
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEAD_CODE_STRIPPING = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "Common/Common-Bridging-Header.h";
