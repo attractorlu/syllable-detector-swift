@@ -180,36 +180,33 @@ class SyllableDetector: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate
         /// samples now points to a vector of `lengthTotal` bytes of power data for the last `timeRange` outputs of the short-timer fourier transform
         /// view as a column vector
         
-        let scaledSamples: UnsafeMutablePointer<Float>
+        // allocate memory for scaled samples
+        let scaledSamples = UnsafeMutablePointer<Float>.allocate(capacity: lengthTotal)
+        defer {
+            scaledSamples.deinitialize(count: lengthTotal)
+            scaledSamples.deallocate()
+        }
+        
         switch config.spectrogramScaling {
         case .db:
-            // temporary memory
-            scaledSamples = UnsafeMutablePointer<Float>.allocate(capacity: lengthTotal)
-            defer {
-                scaledSamples.deinitialize(count: lengthTotal)
-                scaledSamples.deallocate()
-            }
-            
             // convert to db with amplitude flag
             var one: Float = 1.0
             vDSP_vdbcon(samples, 1, &one, scaledSamples, 1, vDSP_Length(lengthTotal), 1)
             
         case .log:
-            // temporary memory
-            scaledSamples = UnsafeMutablePointer<Float>.allocate(capacity: lengthTotal)
-            defer {
-                scaledSamples.deinitialize(count: lengthTotal)
-                scaledSamples.deallocate()
-            }
-            
             // natural log
             var c = Int32(lengthTotal)
-            vvlogf(samples, scaledSamples, &c)
+            vvlogf(scaledSamples, samples, &c)
             
         case .linear:
-            // no copy needed
-            scaledSamples = samples
+            // copy samples
+            memcpy(scaledSamples, samples, lengthTotal * MemoryLayout<Float>.stride)
         }
+        
+        // z-score
+        var mean: Float = 0.0
+        var stddev: Float = 0.0
+        vDSP_normalize(scaledSamples, 1, scaledSamples, 1, &mean, &stddev, vDSP_Length(lengthTotal))
         
         lastOutputs = config.net.apply(scaledSamples)
         
