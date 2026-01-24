@@ -30,6 +30,8 @@
 	<string>Copyright © 2015 Gardner Lab. All rights reserved.</string>
 	<key>NSMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs microphone access to detect syllables in real-time.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
